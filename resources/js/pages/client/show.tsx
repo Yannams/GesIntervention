@@ -1,13 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AppLayout from "@/layouts/app-layout";
-import { BreadcrumbItem } from "@/types";
+import { BreadcrumbItem, message } from "@/types";
 import { Label } from "@headlessui/react";
 import { log } from "console";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { toast } from "sonner";
 
 
 type client = {
@@ -17,7 +18,7 @@ type client = {
     user_id:number
 }   
 
-type site = {
+export type site = {
     id:number;
     nom_site:string
     description:string	
@@ -33,8 +34,27 @@ type site = {
 interface clientProps {
     client:client
     sites:site[]
+    message:message 
+
 }
-export default function showClient({client, sites} :clientProps){
+
+export default function showClient({client, sites,message} :clientProps){
+     useEffect(()=>{
+        if(message){
+            if (message.success) {
+                toast.success(message.success)
+            }
+            if(message.error){
+                    toast.error(message.error)
+            }
+                if(message.warning){
+                    toast.warning(message.warning)
+            } 
+                if(message.info){
+                    toast.info(message.info)
+            }
+        }
+    },[message])
     const breadcrumbs:BreadcrumbItem[] = [
     {
         title:'client',
@@ -50,6 +70,7 @@ const [selectedSite, setSelectedSite]=useState<site|undefined>(undefined)
 
     return(
         <AppLayout breadcrumbs={breadcrumbs}>
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div >
                     <h1 className="text-lg font-bold">{client.raison_social}</h1>
                     <h3 className="text-muted-foreground">{client.tel_structure}</h3>
@@ -107,13 +128,13 @@ const [selectedSite, setSelectedSite]=useState<site|undefined>(undefined)
                                         />
                                         <Marker position={[selectedSite?.latitude,selectedSite?.longitude]}>
                                             <Popup>
-                                                                                            <button
-                                                onClick={() => {
-                                                    const url = `https://www.google.com/maps?q=${selectedSite?.latitude},${selectedSite?.longitude}`;
-                                                    window.open(url, '_blank');
-                                                }}
-                                                >
-                                                Voir dans Google Maps
+                                                <button
+                                                    onClick={() => {
+                                                        const url = `https://www.google.com/maps?q=${selectedSite?.latitude},${selectedSite?.longitude}`;
+                                                        window.open(url, '_blank');
+                                                    }}
+                                                    >
+                                                    Voir dans Google Maps
                                                 </button>
 
                                             </Popup>
@@ -130,7 +151,7 @@ const [selectedSite, setSelectedSite]=useState<site|undefined>(undefined)
                         </CardContent>
                     </Card>
                 </div>
-           
+           </div>
         </AppLayout>
     )
 }

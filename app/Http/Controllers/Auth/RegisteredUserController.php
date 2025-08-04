@@ -30,19 +30,18 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validatedData=$request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'num_user'=>'required',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'num_user'=>'required|unique:users,num_user|regex:/^(?:\+229)?(0[1-9]\d{8})$/',
         ]);
+
+        if (!empty($validatedData['num_user']) && preg_match('/^01\d{8}$/', $validatedData['num_user'])) {
+            $validatedData['num_user'] = '+229' . $validatedData['num_user'];
+        }
        
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'num_user'=>$request->num_user,
-            'password' => Hash::make($request->password),
-        ]);
+        $validatedData['password']=Hash::make('tech@evolutio');
+        $user = User::create($validatedData);
         $user->assignRole('User');
         return redirect()->route('usersList');
     }

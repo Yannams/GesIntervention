@@ -12,7 +12,7 @@ class Site extends Model
     /** @use HasFactory<\Database\Factories\SiteFactory> */
     use HasFactory;
     
-    protected $fillable = [	'id','nom_site','indication','quartier','personne_a_contacter','contact_personne','fonction_personne','latitude','longitude','client_id'];
+    protected $fillable = [	'id','nom_site','indication','quartier','personne_a_contacter','contact_personne','fonction_personne','latitude','longitude','client_id','user_id'];
 
     public function client(): BelongsTo{
         return $this->belongsTo(Client::class);
@@ -22,4 +22,9 @@ class Site extends Model
     {
         return $this->hasMany(Intervention::class);
     }
+
+      public function users(): BelongsTo{
+        return $this->belongsTo(User::class);
+    }
+    
 }

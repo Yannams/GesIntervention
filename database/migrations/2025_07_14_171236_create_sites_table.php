@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sites', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_site');
+            $table->string('nom_site')->unique();
             $table->text('indication')->nullable();
             $table->string('quartier');
             $table->decimal('longitude',10,7)->nullable();
@@ -22,8 +22,9 @@ return new class extends Migration
             $table->string('contact_personne')->nullable();
             $table->string('fonction_personne')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
-           
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

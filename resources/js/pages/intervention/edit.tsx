@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import AppLayout from "@/layouts/app-layout";
-import { BreadcrumbItem } from "@/types";
+import { BreadcrumbItem, message } from "@/types";
 import { useForm, usePage } from "@inertiajs/react";
 import { log } from "console";
 import { Check, ChevronDownIcon, ChevronsUpDown, Clock, LoaderCircle, Plus, Search } from "lucide-react";
@@ -46,7 +46,7 @@ export type site = {
     contact_personne:string
     fonction_personne:string
     quartier:string
-    indication:string	
+    description:string	
     longitude:number|null
     latitude:number|null
     client_id:number
@@ -54,9 +54,10 @@ export type site = {
 
 interface interventionProps  {
     clients:client[]
-        newClient:client
-        sites:site[]
-        newSite:site
+    newClient:client
+    sites:site[]
+    newSite:site
+    intervention:intervention
 }
 
 export type clientForm = {
@@ -110,8 +111,9 @@ export type selectedPosition = {
   site_id: number;
 }
 
-export default function createIntervention({clients, newClient, sites, newSite}:interventionProps){
-    const [clientSelected, setClientSelected]= useState<client|null>(null)
+
+export default function createIntervention({clients, newClient, sites, newSite,intervention}:interventionProps){
+    const [clientSelected, setClientSelected]= useState<client|null>()
     const { data :dataClient, setData :setDataClient, post :postClient, processing :processingClient, errors :errorsClient, reset: resetClient } = useForm<Required<clientForm>>({
         raison_social:'',
         tel_structure:''
@@ -128,13 +130,33 @@ export default function createIntervention({clients, newClient, sites, newSite}:
             }
         });
     };
+    
     useEffect(() => {
         if (newClient) {
             setClientSelected(newClient);
         }
     }, [newClient]);
+
+    useEffect(()=>{
+        if(intervention){
+            const indexSite = sites.findIndex(s=>s.id===intervention.site_id)
+            const siteFound= sites[indexSite];
+            const indexClient = clients.findIndex(c=>c.id===siteFound.client_id)
+            const clientFound = clients[indexClient];
+            setClientSelected(clientFound)
+            setSiteSelected(siteFound)
+            console.log(siteFound);
+            
+            const dateTime = intervention.date_heure_intervention
+            const [dateIntervention, timeIntervention] = dateTime.split(" ")
+            setDate(new Date(dateIntervention));
+            const [hour, minute] = timeIntervention.split(":")
+            setSelectedHour(hour)
+            setSelectedMinute(minute)
+        }
+    },[intervention])
   
-    const [siteSelected, setSiteSelected]= useState<site|null>(null)
+    const [siteSelected, setSiteSelected]= useState<site|null>()    
     const [sitesClients, setSiteClients]= useState<site[]|null>(null)
     const [openSelectSite,setOpenSelectSite]=useState<boolean>(false)
     const [openNewSite,setOpenNewSite]=useState<boolean>(false)
@@ -165,18 +187,17 @@ export default function createIntervention({clients, newClient, sites, newSite}:
             setSiteSelected(newSite);
             const filteredSites = sites.filter(site => site.client_id === clientSelected?.id);
             setSiteClients(filteredSites)
-             if (!newSite.latitude && !newSite.longitude) {
+            if (!newSite.latitude && !newSite.longitude) {
                 setOpenSiteMap(true)
                 setDataSiteLocation('site_id',newSite.id)
             }
-        }
+        }   
     }, [newSite]);
     useEffect(() => {
         if (clientSelected) {
             setDataSite('client_id',clientSelected?.id);
             const filteredSites = sites.filter(site => site.client_id === clientSelected.id);
             setSiteClients(filteredSites)
-            setSiteSelected(null)
         }
     }, [clientSelected]);
     const [openDatePicker, setOpenDatePicker] = useState<boolean>(false)
@@ -313,26 +334,22 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
 }
     useEffect(()=>{
         if(siteSelected){
-            if (!siteSelected.latitude && !siteSelected.longitude) {
-                setOpenSiteMap(true)
-            }
             setDataIntervention('site_id',siteSelected.id)
         }
     },[siteSelected])
-  const { data :dataIntervention, setData :setDataIntervention, post :postIntervention, processing :processingIntervention, errors :errorsIntervention, reset: resetIntervention } = useForm<Required<interventionForm>>({
-        nature:'',	
-        tache_effectuee:'',
-        observation:'',
-        personne_rencontree:'',
-        telephone:'',
-        date_heure_intervention:'',
-        longitude:0,
-        latitude:0,
-        site_id:''
-
+    const { data :dataIntervention, setData :setDataIntervention, put :putIntervention, processing :processingIntervention, errors :errorsIntervention, reset: resetIntervention } = useForm<Required<interventionForm>>({
+        nature:intervention.nature,	
+        tache_effectuee:intervention.tache_effectuee,
+        observation:intervention.observation,
+        personne_rencontree:intervention.personne_rencontree,
+        telephone:intervention.telephone,
+        date_heure_intervention:intervention.date_heure_intervention,
+        longitude:intervention.longitude,
+        latitude:intervention.latitude,
+        site_id:intervention.site_id
     })
     useEffect(()=>{
-        if (date) {
+        if (selectedHour && selectedMinute && date) {
             const hour = selectedHour.toString().padStart(2, '0');
             const minute = selectedMinute.toString().padStart(2, '0');
             const formattedDate = date.toISOString().split("T")[0];
@@ -340,44 +357,11 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
             setDataIntervention('date_heure_intervention',dateTimeString)  
         }
     },[selectedHour,selectedMinute,date])
-   const submitIntervention: FormEventHandler = async (e) => {
-    e.preventDefault();
-
-    if (!("geolocation" in navigator)) {
-        toast.error("La géolocalisation n'est pas supportée par ce navigateur.");
-        return;
+    const submitIntervention :FormEventHandler= async (e)=>{
+        e.preventDefault()  
+        console.log(dataIntervention.date_heure_intervention);    
+        putIntervention(route('intervention.update',intervention.id))
     }
-
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            // Vous pouvez ici inclure les coordonnées dans les données postées
-            const coords = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-            };
-            
-            setDataIntervention('latitude',coords.latitude)
-            setDataIntervention('longitude',coords.longitude)
-        
-
-            postIntervention(route('intervention.store'), {
-                onSuccess: () => {
-                    resetIntervention();
-                    setClientSelected(null);
-                    setSiteSelected(null);
-                    setDate(undefined);
-                    setSelectedHour('');
-                    setSelectedMinute('');
-                    toast.success("L'intervention a été enregistrée");
-                },
-            });
-        },
-        (error) => {
-            toast.error("Erreur lors de la récupération de la position. Veuillez autoriser la localisation.");
-            console.error(error);
-        }
-    );
-};
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -629,6 +613,7 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
                                                                         onSelect={(selectedValue)=> {
                                                                             setClientSelected(selectedValue === clientSelected?.id.toString() ? null : client)
                                                                             setOpenSelectClient(false)
+                                                                            setSiteSelected(null)
                                                                         }}
                                                                         className="flex justify-between"
                                                                     >
@@ -815,7 +800,7 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
                                 </div>
                                 <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processingIntervention}>
                                     {processingIntervention && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                                    Ajouter
+                                    Modifier
                                 </Button>
                             </div>
                         </div>

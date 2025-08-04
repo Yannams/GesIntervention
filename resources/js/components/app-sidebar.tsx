@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { SharedData, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CirclePlus, Folder, Grid, Headset, LayoutGrid, Locate, MapPinned, Navigation, Plus, User, Users, UsersRound } from 'lucide-react';
+import { BookOpen, Building, CirclePlus, Folder, Grid, Headset, LayoutGrid, Locate, MapPinned, Navigation, Plus, User, Users, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 
@@ -50,6 +50,11 @@ const AdminNavItems: NavItem[] = [
             },
         ]
     },
+    {
+        title: 'Interventions',
+        href: route('intervention.index'),
+        icon: Headset,
+    },
 ];
 
 const UserNavItems: NavItem[] = [
@@ -67,6 +72,11 @@ const UserNavItems: NavItem[] = [
                 title:'Interventions',
                 href:route('intervention.create')
             },
+            {
+                icon: Building,
+                title:'Sites',
+                href:route('site.create')
+            },
         ]
     },
 
@@ -78,12 +88,17 @@ const UserNavItems: NavItem[] = [
             {
                 icon: Users,
                 title:'clients',
-                href:route('client.create')
+                href:route('mesClients')
             },
             {
                 icon: Headset,
                 title:'Interventions',
-                href:route('intervention.create')
+                href:route('mesInterventions')
+            },
+             {
+                icon: Building,
+                title:'Sites',
+                href:route('mesSites')
             },
         ]
     },

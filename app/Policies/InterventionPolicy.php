@@ -21,7 +21,11 @@ class InterventionPolicy
      */
     public function view(User $user, Intervention $intervention): bool
     {
-        return false;
+        if ($user->hasRole('Admin')) {
+           return true;
+        }
+        
+        return $user->id===$intervention->user_id;
     }
 
     /**
@@ -37,7 +41,7 @@ class InterventionPolicy
      */
     public function update(User $user, Intervention $intervention): bool
     {
-        return false;
+        return $user->id===$intervention->user_id;
     }
 
     /**
@@ -63,4 +67,6 @@ class InterventionPolicy
     {
         return false;
     }
+
+   
 }

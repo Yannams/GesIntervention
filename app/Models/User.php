@@ -60,4 +60,8 @@ class User extends Authenticatable
         return $this->hasMany(Intervention::class);
     }
 
+     public function sites():HasMany
+    {
+        return $this->hasMany(Site::class);
+    }
 }

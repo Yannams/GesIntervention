@@ -7,6 +7,7 @@ use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Site;
 use App\Models\User;
+use App\Rules\UniqueValue;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -38,9 +39,12 @@ class ClientController extends Controller
     {
       
        $validatedData=$request->validate([
-            'raison_social'=>'required',
-            'tel_structure'=>'nullable|regex:/^\+?[0-9]+$/'
+            'raison_social'=>['required', new UniqueValue('clients', 'raison_social')],
+            'tel_structure'=>'nullable|unique:clients,tel_structure|regex:/^(?:\+229)?(0[1-9]\d{8})$/'
        ]);
+       if (!empty($validatedData['tel_structure']) && preg_match('/^01\d{8}$/', $validatedData['tel_structure'])) {
+            $validatedData['tel_structure'] = '+229' . $validatedData['tel_structure'];
+        }
        $client=Client::create([
             'raison_social'=>$validatedData['raison_social'],
             'tel_structure'=>$validatedData['tel_structure'],
@@ -54,10 +58,12 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
+        $message=session('message');
         $sites=Site::where('client_id',$client->id)->get();
         return Inertia::render('client/show',[
             'client'=>$client,
-            'sites'=>$sites
+            'sites'=>$sites,
+            'message'=>$message
         ]);
     }
 
@@ -66,7 +72,8 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
-        //
+        return Inertia::render('client/edit',['client'=>$client]);
+
     }
 
     /**
@@ -74,10 +81,22 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-        //
+        $validatedData=$request->validate([
+            'raison_social'=>['required', new UniqueValue('clients', 'raison_social',$client->id)],
+            'tel_structure'=>'nullable|unique:clients,tel_structure,' . $client->id.'|regex:/^(?:\+229)?(0[1-9]\d{8})$/'
+        ]);
+
+        if (!empty($validatedData['tel_structure']) && preg_match('/^01\d{8}$/', $validatedData['tel_structure'])) {
+            $validatedData['tel_structure'] = '+229' . $validatedData['tel_structure'];
+        }
+        $client->update([
+            'raison_social'=>$validatedData['raison_social'],
+            'tel_structure'=>$validatedData['tel_structure'],
+        ]);
+       return redirect()->route('client.show',$client->id)->with('message',['success'=>'la modification du client a été enregistré']);
     }
 
-    /**
+    /*
      * Remove the specified resource from storage.
      */
     public function destroy(Client $client)
@@ -86,7 +105,7 @@ class ClientController extends Controller
     }
 
     public function mesClients(User $user ){
-        $clients=Client::with('sites')->where('user_id', $user->id)->get();
+        $clients=Client::with('sites')->where('user_id', Auth::id())->get();
         return Inertia::render('client/mesClients',['clients'=>$clients]);
     }
 }

@@ -10,6 +10,7 @@ const breadcrumbs : BreadcrumbItem[]=[
 ]
 
 export interface user{
+    id:number
     name: string;
     email:string;
     num_user:string;
@@ -35,7 +36,13 @@ export default function usersList({ users} :usersListProps){
                 </TableHeader>
                 <TableBody>
                     {users.map((user,index)=>(
-                        <TableRow>
+                        <TableRow key={user.email} 
+                             onClick={
+                                    ()=>{
+                                        window.location.href=route('UsersIntervention',user.id)
+                                    }
+                                }
+                        >
                             <TableCell>{index + 1}</TableCell>
                             <TableCell>{user.name}</TableCell>
                             <TableCell>{user.email}</TableCell>

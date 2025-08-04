@@ -10,13 +10,13 @@ import { Building, Edit, EllipsisVertical, Eye } from "lucide-react";
  export type InterventionGot = intervention & {
    nom_site:string
    nom_client:string
-
+   user:string
  }
 interface mesInterventionsProps{
     interventions: InterventionGot[]
 }
 
-export default function mesIntervention({interventions}:mesInterventionsProps){
+export default function indexIntervention({interventions}:mesInterventionsProps){
      
         
         const breadcrumbs : BreadcrumbItem[]=[
@@ -33,32 +33,27 @@ export default function mesIntervention({interventions}:mesInterventionsProps){
                         <TableHead>#</TableHead>
                         <TableHead>Clients</TableHead>
                         <TableHead>Sites</TableHead>
+                        <TableHead>Technicien</TableHead>
                         <TableHead>Taches effectuée</TableHead>
                         <TableHead>Nature</TableHead>
-                        <TableHead>Actions </TableHead>
                     </TableRow>
                 </TableHeader>
                  <TableBody>
                         {interventions.map((intervention, index)=>(
-                            <TableRow key={intervention.id}>
+                            <TableRow key={intervention.id}
+                                onClick={
+                                    ()=>{
+                                        window.location.href=route('intervention.show',intervention.id)
+                                    }
+                                }
+                            >
                                 <TableCell>{index+1}</TableCell>
                                 <TableCell>{intervention.nom_client}</TableCell>
                                 <TableCell>{intervention.nom_site}</TableCell>
+                                <TableCell>{intervention.user.name}</TableCell>
                                 <TableCell>{intervention.tache_effectuee}</TableCell>
                                 <TableCell>{intervention.nature}</TableCell>
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger>
-                                            <Button variant={'outline'}><EllipsisVertical/></Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                            <DropdownMenuGroup>
-                                                <DropdownMenuItem><Link className="flex items-center gap-2 w-full" href={route('intervention.edit',intervention.id)}><Edit/>Modifier</Link></DropdownMenuItem>
-                                                <DropdownMenuItem><Link className="flex items-center gap-2 w-full" href={route('intervention.show',intervention.id)}><Eye/>voir</Link></DropdownMenuItem>
-                                            </DropdownMenuGroup>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
+                               
                             </TableRow>
                         ))}
                     </TableBody>

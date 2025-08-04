@@ -49,3 +49,10 @@ export interface User {
     roles:Array
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface message{
+    success:string|null,
+    error:string|null,
+    warning:string|null,
+    info:string|null,
+}
