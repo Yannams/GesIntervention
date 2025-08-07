@@ -34,7 +34,6 @@ const breadcrumbs :BreadcrumbItem[]=[
 export type client ={
     id:number;
     raison_social:string
-    adresse_structure:string
     tel_structure:string
     user_id:number
 }

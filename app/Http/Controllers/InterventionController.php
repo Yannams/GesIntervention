@@ -69,6 +69,7 @@ class InterventionController extends Controller
      */
     public function store(StoreInterventionRequest $request)
     {
+     
         $validatedData = $request->validate([
             'nature' => 'required',
             'tache_effectuee' => 'required',

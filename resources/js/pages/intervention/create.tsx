@@ -34,7 +34,6 @@ const breadcrumbs :BreadcrumbItem[]=[
 export type client ={
     id:number;
     raison_social:string
-    adresse_structure:string
     tel_structure:string
     user_id:number
 }
@@ -196,14 +195,16 @@ export default function createIntervention({clients, newClient, sites, newSite}:
     const mapInstance = useRef<L.Map | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [suggestions, setSuggestions] = useState<any[]>([]);
+    const roundCoord = (value: number)=>parseFloat(value.toFixed(7))
     useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
-          setPosition({ lat: latitude, lng: longitude });
-          setDataIntervention('longitude', longitude)
-          setDataIntervention('latitude', latitude)
+
+          setPosition({ lat: roundCoord(latitude), lng: roundCoord(longitude) });
+          setDataIntervention('longitude', roundCoord(longitude))
+          setDataIntervention('latitude',  roundCoord(latitude))
         },
         (err) => {
           toast.error(err.message);
@@ -227,8 +228,13 @@ export default function createIntervention({clients, newClient, sites, newSite}:
                 toast.success('La localisation du site a été en registré')  
             },
 
-            onError:()=>{
-                toast.error('Une erreur s\'est produite')
+            onError:(errors)=>{
+            if (errors && typeof errors === 'object') {
+                const messages = Object.values(errors).flat(); // ["Erreur 1", "Erreur 2", ...]
+                messages.forEach((message) => toast.error(message)); // Affiche chaque erreur séparément
+            } else {
+                toast.error("Une erreur s'est produite");
+            }
             }
         })
     }
@@ -280,9 +286,9 @@ const [selectedPosition, setSelectedPosition] = useState< selectedPosition | nul
     if (mapInstance.current) {
         mapInstance.current.setView(latLng, 13);
         if (markerRef.current) {
-        markerRef.current.setLatLng(latLng);
+            markerRef.current.setLatLng(latLng);
         } else {
-        markerRef.current = L.marker(latLng).addTo(mapInstance.current);
+            markerRef.current = L.marker(latLng).addTo(mapInstance.current);
         }
         markerRef.current.bindPopup(place.display_name).openPopup();
     }
@@ -356,8 +362,8 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
                 longitude: position.coords.longitude,
             };
             
-            setDataIntervention('latitude',coords.latitude)
-            setDataIntervention('longitude',coords.longitude)
+            setDataIntervention('latitude',roundCoord(coords.latitude))
+            setDataIntervention('longitude', roundCoord(coords.longitude))
         
 
             postIntervention(route('intervention.store'), {

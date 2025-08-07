@@ -11,7 +11,7 @@ class Client extends Model
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
     use HasFactory;
-     protected $fillable = ['raison_social','adresse_structure','tel_structure','user_id'];
+     protected $fillable = ['raison_social','tel_structure','user_id'];
 
     public function user():BelongsTo{
         return $this->belongsTo(User::class);
