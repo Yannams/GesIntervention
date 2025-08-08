@@ -19,14 +19,18 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-control-geocoder';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
-// Correction du chemin des icônes en production
-delete L.Icon.Default.prototype._getIconUrl;
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+const markerIcon = new L.Icon({
+  iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url).toString(),
+  iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).toString(),
+  shadowUrl: new URL('leaflet/dist/images/marker-shadow.png', import.meta.url).toString(),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
 });
+
+L.Marker.prototype.options.icon = markerIcon;
    
 interface CreateSiteProps {
     clients:client[] 
