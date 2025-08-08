@@ -19,6 +19,7 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet-control-geocoder';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import { toast } from "sonner";
+import { InterventionGot } from ".";
 
 const markerIcon = new L.Icon({
   iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url).toString(),
@@ -31,16 +32,7 @@ const markerIcon = new L.Icon({
 });
 
 L.Marker.prototype.options.icon = markerIcon;
-const breadcrumbs :BreadcrumbItem[]=[
-    {
-        title:'interventions',
-        href:route('intervention.index')
-    },
-     {
-        title:'nouveau',
-        href:route('intervention.create')
-    },
-]
+
 
 export type client ={
     id:number;
@@ -67,7 +59,12 @@ interface interventionProps  {
     newClient:client
     sites:site[]
     newSite:site
-    intervention:intervention
+    intervention: InterventionGot & {
+            formatedDate:string 
+            created_atFormated:string  
+            lat_site:number
+            lng_site:number
+    } 
 }
 
 export type clientForm = {
@@ -123,6 +120,17 @@ export type selectedPosition = {
 
 
 export default function createIntervention({clients, newClient, sites, newSite,intervention}:interventionProps){
+
+    const breadcrumbs :BreadcrumbItem[]=[
+    {
+        title:'interventions',
+        href:route('intervention.index')
+    },
+     {
+        title:`modifier ${intervention.nom_site}  ${intervention.formatedDate}`,
+        href:route('intervention.create')
+    },
+]
     const [clientSelected, setClientSelected]= useState<client|null>()
     const { data :dataClient, setData :setDataClient, post :postClient, processing :processingClient, errors :errorsClient, reset: resetClient } = useForm<Required<clientForm>>({
         raison_social:'',

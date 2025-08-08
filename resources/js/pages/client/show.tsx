@@ -34,7 +34,7 @@ type client = {
 export type site = {
     id:number;
     nom_site:string
-    description:string	
+    indication:string	
     quartier:string
     personne_a_contacter:string
     contact_personne:string
@@ -71,11 +71,11 @@ export default function showClient({client, sites,message} :clientProps){
     const breadcrumbs:BreadcrumbItem[] = [
     {
         title:'client',
-        href:route('client.index')
+        href:route('mesClients')
     },
     {
         title:client.raison_social,
-        href:route('client.index')
+        href:route('client.show',client.id)
     },
 ]
 

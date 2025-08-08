@@ -13,21 +13,22 @@ import { client } from ".";
 
 
 
-const breadcrumbs:BreadcrumbItem[]=[
-    {
-        title:'clients',
-        href:route('client.index'),
-    },
-    {
-        title:'nouveau',
-        href:route('client.create'),
-    },
-]
 
 interface editClientProps{
     client:client
 }
 export default function editClient({client}:editClientProps){
+    const breadcrumbs:BreadcrumbItem[]=[
+    {
+        title:'clients',
+        href:route('client.index'),
+    },
+    {
+        title:`modifier ${client.raison_social}`,
+        href:route('client.edit',client.id),
+    },
+]
+
      const { data :dataClient, setData :setDataClient, put :putClient, processing :processingClient, errors :errorsClient, reset: resetClient } = useForm<Required<clientForm>>({
             raison_social:client.raison_social,
             tel_structure:client.tel_structure, 

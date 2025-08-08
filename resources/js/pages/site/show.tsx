@@ -76,7 +76,7 @@ export default function siteShow({site,message}:siteShowProps){
                                 >
                                     Modifier
                                 </Button>
-                                <Button >Modifier la localisation</Button>
+                                
                             </div>
                             <div className="flex justify-between items-center">
                                 <CardTitle>Client</CardTitle>

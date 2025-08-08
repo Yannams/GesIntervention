@@ -34,8 +34,8 @@ export default function editSite({clients, newClient, site, newSite}:CreateSiteP
             href:route('mesSites')
         },
         {
-            title:'nouveau',
-            href:route('site.create')
+            title:`modifier ${site.nom_site}`,
+            href:route('site.edit',site.id)
         }
     ]
      const [openSelectClient,setOpenSelectClient]=useState<boolean>(false)

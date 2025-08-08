@@ -56,7 +56,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         $message=session('message');
-        $sites=Site::where('client_id',$client->id)->get();
+        $sites=Site::where('client_id',$client->id)->where('user_id',Auth::id())->get();
         return Inertia::render('client/show',[
             'client'=>$client,
             'sites'=>$sites,

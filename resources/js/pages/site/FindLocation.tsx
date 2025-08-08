@@ -103,6 +103,9 @@ const [position, setPosition] = useState<{ lat: number; lng: number }>({
                         onSelect={() => {
                           setSelectSite(s);
                           setSearchQuery(s.nom_site);
+                          if (!s.latitude && !s.longitude) {
+                            toast.error('information de localisation vide') 
+                          }
                         }}
                       >
                         {s.nom_site}

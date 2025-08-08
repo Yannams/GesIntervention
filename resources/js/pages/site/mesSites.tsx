@@ -54,6 +54,7 @@ export default function mesSites({sites}:mesSitesProps){
         const mapInstance = useRef<L.Map | null>(null);
         const [searchQuery, setSearchQuery] = useState("");
         const [suggestions, setSuggestions] = useState<any[]>([]);
+        const roundCoord = (value: number)=>parseFloat(value.toFixed(7))
 
         useEffect(()=>{
             if(selectedSite){
@@ -66,7 +67,7 @@ export default function mesSites({sites}:mesSitesProps){
           navigator.geolocation.getCurrentPosition(
             (pos) => {
               const { latitude, longitude } = pos.coords;
-              setPosition({ lat: latitude, lng: longitude });
+            setPosition({ lat: roundCoord(latitude), lng: roundCoord(longitude) });
               
             },
             (err) => {
@@ -83,6 +84,13 @@ export default function mesSites({sites}:mesSitesProps){
             longitude:position.lng,
             site_id:0
         })
+          useEffect(()=>{
+        if(openSiteMap){
+                setDataSiteLocation('latitude',position?.lat ?? 0)
+                setDataSiteLocation('longitude',position?.lng ?? 0)
+                setDataSiteLocation('site_id',selectedSite?.id ?? 0)
+            }
+        },[openSiteMap])
         const submitSiteMap :FormEventHandler= (e)=>{
             e.preventDefault()
             postSiteLocation(route('addLocation'),{
@@ -163,6 +171,14 @@ export default function mesSites({sites}:mesSitesProps){
       setSuggestions([]);
       setSearchQuery(place.display_name);
     };
+
+     useEffect(()=>{
+        if (selectedPosition) {  
+            setDataSiteLocation('latitude',selectedPosition?.lat ?? 0)
+            setDataSiteLocation('longitude',selectedPosition?.lon ?? 0)
+            setDataSiteLocation('site_id',selectedSite?.id ?? 0)
+        }
+    },[selectedPosition])
     
     const submitSelectedPosition :FormEventHandler=(e)=>{
         e.preventDefault()

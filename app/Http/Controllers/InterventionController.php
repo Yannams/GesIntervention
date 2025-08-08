@@ -134,6 +134,10 @@ class InterventionController extends Controller
             $newSite=session('newSite');
 
          }
+        $intervention->nom_site=$intervention->site->nom_site;
+        $intervention->nom_client=$intervention->site->client->raison_social;
+        $intervention->created_atFormated=date('d/m/Y à H:m',strtotime($intervention->created_at));
+        $intervention->formatedDate=date('d/m/Y H:m',strtotime($intervention->date_heure_intervention));
         return Inertia::render('intervention/edit',[
             'clients'=>$clients,
             'newClient'=>$newClient,
@@ -152,7 +156,7 @@ class InterventionController extends Controller
         $validatedData=$request->validate([
             'nature'=>'required',
             'tache_effectuee'=>'required',
-            'observation'=>'required',
+            'observation' => 'nullable|string',
             'personne_rencontree'=>'nullable|string',
             'telephone'=>'nullable|regex:/^(?:\+229)?(0[1-9]\d{8})$/',
             'date_heure_intervention'=>'required',

@@ -40,7 +40,7 @@ export default function showIntervention({intervention,message}:showIntervention
     const breadcrumbs:BreadcrumbItem[]=[
     {
         title:'interventions',
-        href:route('intervention.index')
+        href:route('mesInterventions')
     },
     {
         title:`${intervention.nom_site}  ${intervention.formatedDate}`,
