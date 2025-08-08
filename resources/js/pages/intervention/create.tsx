@@ -220,6 +220,13 @@ export default function createIntervention({clients, newClient, sites, newSite}:
         longitude:position.lng,
         site_id:0
     })
+     useEffect(()=>{
+        if(openSiteMap){
+            setDataSiteLocation('latitude',position?.lat ?? 0)
+            setDataSiteLocation('longitude',position?.lng ?? 0)
+            setDataSiteLocation('site_id',siteSelected?.id ?? 0)
+        }
+     },[openSiteMap])
     const submitSiteMap :FormEventHandler= (e)=>{
         e.preventDefault()
         postSiteLocation(route('addLocation'),{
@@ -278,9 +285,13 @@ const [selectedPosition, setSelectedPosition] = useState< selectedPosition | nul
     }
   }, [openSearchMap]);
 
-  const handleSelect = (place: any) => {
-    const lat = parseFloat(place.lat);
-    const lon = parseFloat(place.lon);
+const handleSelect = (place: any) => {
+    if (!place.lat || !place.lon || !place.display_name) {
+        toast.error("Coordonnées invalides");
+        return;
+    }
+    const lat = parseFloat(parseFloat(place.lat).toFixed(7));
+    const lon = parseFloat(parseFloat(place.lon).toFixed(7));
     const latLng = L.latLng(lat, lon);
 
     if (mapInstance.current) {
@@ -293,30 +304,36 @@ const [selectedPosition, setSelectedPosition] = useState< selectedPosition | nul
         markerRef.current.bindPopup(place.display_name).openPopup();
     }
 
-  // Enregistrement de la position sélectionnée
-  setSelectedPosition({
-    lat,
-    lon,
-    site_id: siteSelected?.id ?? 0,
-  });
+    // Enregistrement de la position sélectionnée
+    setSelectedPosition({
+        lat:lat,
+        lon:lon,
+        site_id: siteSelected?.id ?? 0,
+    });
 
-  setSuggestions([]);
-  setSearchQuery(place.display_name);
+    setSuggestions([]);
+    setSearchQuery(place.display_name);
 };
 
-const submitSelectedPosition :FormEventHandler=(e)=>{
-    e.preventDefault()
-    postSiteLocation(route('addLocation'),{
-        onSuccess:()=>{
-            setOpenSearchMap(false) 
-            toast.success('La localisation du site a été enregistré')  
-        },
-        onError:()=>{
-            toast.success('Une erreur s\'est produite')  
-
-        }
-    })
-}
+useEffect(()=>{
+    if (selectedPosition) {  
+        setDataSiteLocation('latitude',selectedPosition?.lat ?? 0)
+        setDataSiteLocation('longitude',selectedPosition?.lon ?? 0)
+        setDataSiteLocation('site_id',siteSelected?.id ?? 0)
+    }
+},[selectedPosition])
+    const submitSelectedPosition :FormEventHandler=(e)=>{
+        e.preventDefault()
+        postSiteLocation(route('addLocation'),{
+            onSuccess:()=>{
+                setOpenSearchMap(false) 
+                toast.success('La localisation du site a été enregistré')  
+            },
+            onError:()=>{
+                toast.success('Une erreur s\'est produite') 
+            }
+        })
+    }
     useEffect(()=>{
         if(siteSelected){
             if (!siteSelected.latitude && !siteSelected.longitude) {
@@ -361,11 +378,8 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
             };
-            
             setDataIntervention('latitude',roundCoord(coords.latitude))
             setDataIntervention('longitude', roundCoord(coords.longitude))
-        
-
             postIntervention(route('intervention.store'), {
                 onSuccess: () => {
                     resetIntervention();
@@ -558,7 +572,7 @@ const submitSelectedPosition :FormEventHandler=(e)=>{
                     </DialogHeader>
                    
                     <Command>
-                        <CommandInput placeholder="rechercher un lieu" value={searchQuery} onValueChange={setSearchQuery}/>
+                        <CommandInput placeholder="Rechercher un lieu" value={searchQuery} onValueChange={setSearchQuery}/>
                         {suggestions.length > 0 && (
                             <CommandList>
                                 {suggestions.map((sugg, index) => (
