@@ -23,7 +23,7 @@ import { toast } from "sonner";
 const breadcrumbs :BreadcrumbItem[]=[
     {
         title:'interventions',
-        href:route('intervention.index')
+        href:route('mesInterventions')
     },
      {
         title:'nouveau',
@@ -416,6 +416,7 @@ useEffect(()=>{
                                     type="text"
                                     value={dataClient.raison_social}
                                     onChange={(e)=>setDataClient('raison_social',e.target.value)}
+                                    placeholder="Nom de l'entreprise"
                                 />
                                 <InputError message={errorsClient.raison_social}/>
                             </div>
@@ -427,6 +428,7 @@ useEffect(()=>{
                                     type="text"
                                     value={dataClient.tel_structure}
                                     onChange={(e)=>setDataClient('tel_structure',e.target.value)}
+                                    placeholder="01XXXXXXXX"
                                 />
                                 <InputError message={errorsClient.tel_structure}/>
                             </div>
@@ -519,7 +521,7 @@ useEffect(()=>{
             </Dialog>
             <Dialog open={openSiteMap} onOpenChange={setOpenSiteMap}>
                 <DialogContent>
-                    <div>Vous vous trouvez ici actuellement. Est-ce la localisation de <span className="font-bold">{newSite.nom_site}</span> ?</div>
+                    <div>Vous vous trouvez ici actuellement. Est-ce la localisation de <span className="font-bold">{newSite.nom_site ?? siteSelected?.nom_site}</span> ?</div>
                     <div className="rounded">
                          <MapContainer center={[position?.lat,position?.lng]} zoom={13} scrollWheelZoom={true} className="h-[400px] w-full rounded-xl shadow">
                             <TileLayer
@@ -538,7 +540,7 @@ useEffect(()=>{
                             <DialogClose>
                                 <Button variant={'secondary'}>Annuler</Button>
                             </DialogClose>
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
                                     <Button 
                                         variant={'secondary'} 
                                         onClick={()=>{
@@ -551,7 +553,7 @@ useEffect(()=>{
                                 <form onSubmit={submitSiteMap}>
                                     <Input type="hidden" value={dataSiteLocation.latitude}/>
                                     <Input type="hidden" value={dataSiteLocation.longitude}/>
-                                     <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processingSiteLocation}>
+                                     <Button type="submit" className=" w-full" tabIndex={4} disabled={processingSiteLocation}>
                                         {processingSiteLocation && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                         Oui
                                     </Button>
@@ -829,8 +831,9 @@ useEffect(()=>{
                                     </div>
                                      <div className="grid gap-2">
                                         <Label>Telephone</Label>
-                                        <Input value={dataIntervention.telephone} onChange={(e)=>setDataIntervention('telephone',e.target.value)}/>
+                                        <Input value={dataIntervention.telephone} onChange={(e)=>setDataIntervention('telephone',e.target.value)} placeholder="01XXXXXXXX"/>
                                         <InputError message={errorsIntervention.telephone}/>
+                                        
                                     </div>
                                 </div>
                                 <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processingIntervention}>

@@ -73,7 +73,7 @@ class InterventionController extends Controller
         $validatedData = $request->validate([
             'nature' => 'required',
             'tache_effectuee' => 'required',
-            'observation' => 'required',
+            'observation' => 'nullable|string',
             'personne_rencontree' => 'nullable|string',
             'telephone' => 'nullable|regex:/^(?:\+229)?(0[1-9]\d{8})$/',
             'date_heure_intervention' => 'required',

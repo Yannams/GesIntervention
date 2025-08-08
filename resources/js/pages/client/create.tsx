@@ -15,7 +15,7 @@ import { toast } from "sonner";
 const breadcrumbs:BreadcrumbItem[]=[
     {
         title:'clients',
-        href:route('client.index'),
+        href:route('mesClients'),
     },
     {
         title:'nouveau',
@@ -63,6 +63,7 @@ export default function createClient(){
                                             type="text"
                                             value={dataClient.raison_social}
                                             onChange={(e)=>setDataClient('raison_social',e.target.value)}
+                                            placeholder="Nom de l'entreprise"
                                         />
                                         <InputError message={errorsClient.raison_social}/>
                                     </div>
@@ -74,6 +75,7 @@ export default function createClient(){
                                             type="text"
                                             value={dataClient.tel_structure}
                                             onChange={(e)=>setDataClient('tel_structure',e.target.value)}
+                                            placeholder="01XXXXXXXX"
                                         />
                                         <InputError message={errorsClient.tel_structure}/>
                                     </div>

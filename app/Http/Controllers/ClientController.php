@@ -40,11 +40,8 @@ class ClientController extends Controller
       
        $validatedData=$request->validate([
             'raison_social'=>['required', new UniqueValue('clients', 'raison_social')],
-            'tel_structure'=>'nullable|unique:clients,tel_structure|regex:/^(?:\+229)?(0[1-9]\d{8})$/'
+            'tel_structure'=>'nullable|unique:clients,tel_structure|regex:/^\+?\d+$/|max:20'
        ]);
-       if (!empty($validatedData['tel_structure']) && preg_match('/^01\d{8}$/', $validatedData['tel_structure'])) {
-            $validatedData['tel_structure'] = '+229' . $validatedData['tel_structure'];
-        }
        $client=Client::create([
             'raison_social'=>$validatedData['raison_social'],
             'tel_structure'=>$validatedData['tel_structure'],
@@ -83,12 +80,9 @@ class ClientController extends Controller
     {
         $validatedData=$request->validate([
             'raison_social'=>['required', new UniqueValue('clients', 'raison_social',$client->id)],
-            'tel_structure'=>'nullable|unique:clients,tel_structure,' . $client->id.'|regex:/^(?:\+229)?(0[1-9]\d{8})$/'
+            'tel_structure'=>'nullable|unique:clients,tel_structure,' . $client->id.'|regex:/^\+?\d+$/|max:20'
         ]);
 
-        if (!empty($validatedData['tel_structure']) && preg_match('/^01\d{8}$/', $validatedData['tel_structure'])) {
-            $validatedData['tel_structure'] = '+229' . $validatedData['tel_structure'];
-        }
         $client->update([
             'raison_social'=>$validatedData['raison_social'],
             'tel_structure'=>$validatedData['tel_structure'],

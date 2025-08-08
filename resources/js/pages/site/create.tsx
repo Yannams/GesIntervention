@@ -19,6 +19,14 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-control-geocoder';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
+// Correction du chemin des icônes en production
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+});
    
 interface CreateSiteProps {
     clients:client[] 
@@ -376,7 +384,7 @@ export default function CreateSite({clients, newClient, sites, newSite}:CreateSi
                             <form onSubmit={submitSite}>
                                 <div className="grid gap-6">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="nom_site">Nom site</Label>
+                                        <Label htmlFor="nom_site">Nom client</Label>
                                         <div className="grid grid-cols-4 gap-2">  
                                             <Popover open={openSelectClient} onOpenChange={setOpenSelectClient}>   
                                                 <PopoverTrigger className="col-span-3">
