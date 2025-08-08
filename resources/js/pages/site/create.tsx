@@ -72,14 +72,17 @@ export default function CreateSite({clients, newClient, sites, newSite}:CreateSi
     const [searchQuery, setSearchQuery] = useState("");
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [selectedPosition, setSelectedPosition] = useState< selectedPosition | null>(null);
+    const roundCoord = (value: number)=>parseFloat(value.toFixed(7))
     const { data :dataClient, setData :setDataClient, post :postClient, processing :processingClient, errors :errorsClient, reset: resetClient } = useForm<Required<clientForm>>({
         raison_social:'',
         tel_structure:''
     })
      useEffect(() => {
         if (newSite) {
-            setOpenSiteMap(true)
-            setDataSiteLocation('site_id',newSite.id)
+            if (!newSite.latitude && !newSite.longitude) {
+                setOpenSiteMap(true)
+                setDataSiteLocation('site_id',newSite.id)
+            }
         }
     }, [newSite]);
      useEffect(() => {
@@ -89,20 +92,26 @@ export default function CreateSite({clients, newClient, sites, newSite}:CreateSi
         }, [newClient]);
       useEffect(() => {
         if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(
+            navigator.geolocation.getCurrentPosition(
             (pos) => {
-              const { latitude, longitude } = pos.coords;
-              setPosition({ lat: latitude, lng: longitude });
+                const { latitude, longitude } = pos.coords;
+                setPosition({ lat: roundCoord(latitude), lng: roundCoord(longitude) });
             },
             (err) => {
-              setError(err.message);
-              toast.error(err.message)
+                toast.error(err.message); 
             }
-          );
+        );
         } else {
-          setError("La géolocalisation n'est pas supportée par ce navigateur.");
+            setError("La géolocalisation n'est pas supportée par ce navigateur.");
         }
       }, []);
+      useEffect(()=>{
+        if(openSiteMap){
+            setDataSiteLocation('latitude',position?.lat ?? 0)
+            setDataSiteLocation('longitude',position?.lng ?? 0)
+            setDataSiteLocation('site_id',newSite?.id ?? 0)
+        }
+     },[openSiteMap])
        const { data :dataSiteLocation, setData :setDataSiteLocation, post :postSiteLocation, processing :processingSiteLocation, errors :errorsSiteLocation, reset: resetSiteLocation } = useForm<Required<siteLocationForm>>({
             latitude:position.lat,
             longitude:position.lng,
@@ -113,6 +122,7 @@ export default function CreateSite({clients, newClient, sites, newSite}:CreateSi
             postSiteLocation(route('addLocation'),{
                 onSuccess:()=>{
                     setOpenSiteMap(false) 
+                    setClientSelected(null)
                     toast.success('La localisation du site a été en registré')  
                 },
     
@@ -205,12 +215,19 @@ export default function CreateSite({clients, newClient, sites, newSite}:CreateSi
           setSuggestions([]);
           setSearchQuery(place.display_name);
         };
-        
+        useEffect(()=>{
+    if (selectedPosition) {  
+        setDataSiteLocation('latitude',selectedPosition?.lat ?? 0)
+        setDataSiteLocation('longitude',selectedPosition?.lon ?? 0)
+        setDataSiteLocation('site_id',newSite?.id ?? 0)
+    }
+},[selectedPosition])
         const submitSelectedPosition :FormEventHandler=(e)=>{
             e.preventDefault()
             postSiteLocation(route('addLocation'),{
                 onSuccess:()=>{
                     setOpenSearchMap(false) 
+                    setClientSelected(null)
                     toast.success('La localisation du site a été enregistré')  
                 },
                 onError:()=>{
@@ -302,7 +319,7 @@ export default function CreateSite({clients, newClient, sites, newSite}:CreateSi
                                 <form onSubmit={submitSiteMap}>
                                     <Input type="hidden" value={dataSiteLocation.latitude}/>
                                     <Input type="hidden" value={dataSiteLocation.longitude}/>
-                                        <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processingSiteLocation}>
+                                        <Button type="submit" className="w-full" tabIndex={4} disabled={processingSiteLocation}>
                                         {processingSiteLocation && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                         Oui
                                     </Button>

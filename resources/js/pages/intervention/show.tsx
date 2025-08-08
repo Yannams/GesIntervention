@@ -8,6 +8,20 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePage } from "@inertiajs/react";
 import { Info } from "lucide-react";
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+const markerIcon = new L.Icon({
+  iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url).toString(),
+  iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).toString(),
+  shadowUrl: new URL('leaflet/dist/images/marker-shadow.png', import.meta.url).toString(),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = markerIcon;
 
 interface showInterventionProps{
     intervention : InterventionGot & {
